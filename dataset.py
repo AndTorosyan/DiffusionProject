@@ -1,12 +1,14 @@
-dataset = MNIST(
-    root="data",
-    train=True,
-    download=True,
-    transform=transforms.Compose([
-    transforms.ToTensor(),
-    transforms.Normalize((0.5,), (0.5,))
-])
-)
+def load_dataset():
+    dataset = MNIST(
+        root="data",
+        train=True,
+        download=True,
+        transform=transforms.Compose([
+        transforms.ToTensor(),
+        transforms.Normalize((0.5,), (0.5,))
+    ])
+    )
+    return dataset
 
 # // For checking with matplotlib
 
