@@ -1,12 +1,15 @@
+from torchvision.datasets import MNIST
+from torchvision import transforms
+
 def load_dataset():
     dataset = MNIST(
         root="data",
         train=True,
         download=True,
         transform=transforms.Compose([
-        transforms.ToTensor(),
-        transforms.Normalize((0.5,), (0.5,))
-    ])
+            transforms.ToTensor(),
+            transforms.Normalize((0.5,), (0.5,))
+        ])
     )
     return dataset
 

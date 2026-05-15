@@ -1,14 +1,26 @@
-def reverse_diffusion(xt, t, label, alpha, alpha_bar):
-    eps_theta = Unet(xt, t, label)
+import torch
 
-    sqrt_alpha_bar_t = torch.sqrt(alpha_bar[t])[:, None, None, None]
-    sqrt_one_minus_alpha_bar_t = torch.sqrt(1 - alpha_bar[t])[:, None, None, None]
+def reverse_diffusion(xt, t, label, alpha, alpha_bar, model):
+    if isinstance(t, torch.Tensor):
+        t_index = t.item()
+        t_tensor = t
+    else:
+        t_index = t
+        t_tensor = torch.tensor([t], device=xt.device)
+
+    eps_theta = model(xt, t_tensor, label)
+
+    sqrt_alpha_bar_t = torch.sqrt(alpha_bar[t_tensor])[:, None, None, None]
+    sqrt_one_minus_alpha_bar_t = torch.sqrt(1 - alpha_bar[t_tensor])[:, None, None, None]
     x0_pred = (xt - sqrt_one_minus_alpha_bar_t * eps_theta) / sqrt_alpha_bar_t
 
-    beta_t = 1 - alpha[t]
-    alpha_t = alpha[t]
-    alpha_bar_t = alpha_bar[t]
-    alpha_bar_t_prev = alpha_bar[t-1] if t > 0 else torch.tensor(1.0, device=xt.device)
+    beta_t = 1 - alpha[t_tensor]
+    alpha_t = alpha[t_tensor]
+    alpha_bar_t = alpha_bar[t_tensor]
+    if t_index > 0:
+        alpha_bar_t_prev = alpha_bar[t_index - 1]
+    else:
+        alpha_bar_t_prev = torch.tensor(1.0, device=xt.device)
 
     coef_x0 = torch.sqrt(alpha_bar_t_prev) * beta_t / (1 - alpha_bar_t)
     coef_xt = torch.sqrt(alpha_t) * (1 - alpha_bar_t_prev) / (1 - alpha_bar_t)

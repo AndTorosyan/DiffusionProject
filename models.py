@@ -1,3 +1,12 @@
+import math
+
+import torch
+import torch.nn as nn
+import torch.nn.functional as F
+
+from forward_diffusion import forward_diffusion
+
+
 class ConditionalUNet(nn.Module):
     def __init__(self, num_classes=10):
         super().__init__()
@@ -18,8 +27,8 @@ class ConditionalUNet(nn.Module):
         self.bottleneck = nn.Conv2d(128, 128, 3, padding=1)
 
         # Decoder
-        self.dec1 = nn.Conv2d(128+64, 64, 3, padding=1)
-        self.dec2 = nn.Conv2d(64+32, 32, 3, padding=1)
+        self.dec1 = nn.Conv2d(128 + 64, 64, 3, padding=1)
+        self.dec2 = nn.Conv2d(64 + 32, 32, 3, padding=1)
         self.dec3 = nn.Conv2d(32, 1, 3, padding=1)
 
     def get_time_embedding(self, t, dim=128):
@@ -51,19 +60,21 @@ class ConditionalUNet(nn.Module):
 
         return self.dec3(dec2)
 
-    def fit(self, dataloader, alpha_bar, T, epochs=1):
+    def fit(self, dataloader, alpha_bar, T, epochs=1, device=None):
         self.train()
-        optimizer = torch.optim.Adam(self.parameters(), lr=1e-4)
+        if device is None:
+            device = next(self.parameters()).device
         self.to(device)
+        optimizer = torch.optim.Adam(self.parameters(), lr=1e-4)
 
         for epoch in range(epochs):
             epoch_loss = 0.0
             for i, (x, label) in enumerate(dataloader):
-                x, label = x.to(device), label.to(device)  # ← label used now
+                x, label = x.to(device), label.to(device)
                 t = torch.randint(0, T, (x.size(0),), device=device)
 
                 xt, noise = forward_diffusion(x, t, alpha_bar)
-                pred_noise = self(xt, t, label)  # ← pass label
+                pred_noise = self(xt, t, label)
 
                 loss = F.mse_loss(pred_noise, noise)
                 optimizer.zero_grad()
@@ -71,7 +82,7 @@ class ConditionalUNet(nn.Module):
                 optimizer.step()
 
                 epoch_loss += loss.item()
-                if (i+1) % 100 == 0:
+                if (i + 1) % 100 == 0:
                     print(f"Epoch [{epoch+1}/{epochs}], Batch [{i+1}/{len(dataloader)}], Loss: {loss.item():.4f}")
 
             avg_loss = epoch_loss / len(dataloader)

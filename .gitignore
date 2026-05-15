@@ -1,0 +1,16 @@
+# Virtual environment
+.venv/
+
+# Data
+data/
+
+# Python cache
+__pycache__/
+*.pyc
+
+# VSCode
+.vscode/
+
+# Model checkpoints (if you save any)
+*.pth
+*.pt
