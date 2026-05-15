@@ -1,8 +1,8 @@
 import torch
 from torch.utils.data import DataLoader
-from dataset import load_dataset
-from generation import generate_digit
-from models import ConditionalUNet
+from sources.dataset import load_dataset
+from sources.generation import generate_digit
+from sources.models import ConditionalUNet
 
 if __name__ == "__main__":
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")

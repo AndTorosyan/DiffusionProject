@@ -1,6 +1,6 @@
 import torch
 import matplotlib.pyplot as plt
-from reverse_diffusion import reverse_diffusion
+from diffusion.reverse_diffusion import reverse_diffusion
 
 def generate_digit(model, digit, device, alpha, alpha_bar, T):
     if digit not in range(10):

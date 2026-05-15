@@ -4,7 +4,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-from forward_diffusion import forward_diffusion
+from diffusion.forward_diffusion import forward_diffusion
 
 
 class ConditionalUNet(nn.Module):
